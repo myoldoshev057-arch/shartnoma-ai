@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShartnomAI — AI Shartnoma Tahlilchi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root {
+    --ink: #0f0e0d;
+    --ink2: #3a3830;
+    --ink3: #7a7668;
+    --paper: #faf9f6;
+    --paper2: #f2f0ea;
+    --paper3: #e8e4da;
+    --accent: #c8501a;
+    --accent2: #e8703a;
+    --green: #2a6a42;
+    --green-bg: #eaf4ee;
+    --yellow: #8a6a10;
+    --yellow-bg: #fef8e6;
+    --red: #c8301a;
+    --red-bg: #fdecea;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  header {
+    border-bottom: 1px solid var(--paper3);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-family: 'Instrument Serif', serif; font-size: 22px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-badge { font-size: 11px; background: var(--paper2); border: 1px solid var(--paper3); color: var(--ink3); padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+  .header-login-btn { font-size: 13px; font-weight: 500; color: var(--accent); background: none; border: 1px solid var(--accent); border-radius: 20px; padding: 5px 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+  .header-login-btn:hover { background: var(--accent); color: white; }
+
+  main { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+  /* HERO */
+  .hero { text-align: center; margin-bottom: 3rem; }
+  .hero-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+  .hero h1 { font-family: 'Instrument Serif', serif; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15; color: var(--ink); margin-bottom: 1rem; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p { font-size: 16px; color: var(--ink3); max-width: 520px; margin: 0 auto 1.5rem; line-height: 1.7; }
+  .hero-stats { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .hero-stat { text-align: center; }
+  .hero-stat strong { display: block; font-size: 1.4rem; font-family: 'Instrument Serif', serif; color: var(--ink); }
+  .hero-stat span { font-size: 12px; color: var(--ink3); }
+
+  /* PRICING PILLS */
+  .pricing-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .price-pill { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 30px; border: 1px solid var(--paper3); background: var(--paper2); font-size: 13px; color: var(--ink2); font-weight: 500; cursor: pointer; transition: all .15s; }
+  .price-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .price-pill.featured { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* TOKEN LOGIN */
+  .token-section { background: var(--paper2); border: 1px solid var(--paper3); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+  .token-section h3 { font-size: 14px; font-weight: 600; color: var(--ink2); margin-bottom: 10px; }
+  .token-input-row { display: flex; gap: 8px; }
+  .token-input { flex: 1; padding: 9px 12px; border: 1px solid var(--paper3); border-radius: var(--radius-sm); background: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); outline: none; transition: border-color .2s; }
+  .token-input:focus { border-color: var(--accent); }
+  .token-btn { padding: 9px 18px; background: var(--ink); color: var(--paper); border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; white-space: nowrap; }
+  .token-btn:hover { background: var(--ink2); }
+  .token-hint { font-size: 12px; color: var(--ink3); margin-top: 8px; }
+  .token-hint a { color: var(--accent); text-decoration: none; }
+  .token-status { display: none; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; margin-top: 8px; }
+  .token-ok { background: var(--green-bg); color: var(--green); display: flex; align-items: center; gap: 6px; }
+  .token-err { background: var(--red-bg); color: var(--red); }
+
+  /* FREE DEMO BANNER */
+  .demo-banner { background: var(--yellow-bg); border: 1px solid #e8d090; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--yellow); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+
+  /* LANG */
+  .lang-row { display: flex; gap: 8px; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; }
+  .lang-label { font-size: 13px; color: var(--ink3); }
+  .lang-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--paper3); background: var(--paper2); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink2); cursor: pointer; transition: all .15s; }
+  .lang-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  /* UPLOAD */
+  .upload-zone { border: 2px dashed var(--paper3); border-radius: var(--radius); padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all .2s; background: var(--paper); position: relative; margin-bottom: 1rem; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: #fdf5f2; }
+  .upload-zone.has-file { border-style: solid; border-color: var(--green); background: var(--green-bg); padding: 1.5rem 2rem; }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+  .upload-title { font-size: 17px; font-weight: 500; color: var(--ink2); margin-bottom: 6px; }
+  .upload-sub { font-size: 13px; color: var(--ink3); }
+  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .file-info { display: flex; align-items: center; gap: 10px; }
+  .file-icon { font-size: 2rem; }
+  .file-name { font-weight: 500; color: var(--green); font-size: 15px; }
+  .file-size { font-size: 12px; color: var(--ink3); }
+  .file-change { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; margin-left: auto; }
+
+  .divider-text { text-align: center; position: relative; margin: 1rem 0; font-size: 12px; color: var(--ink3); }
+  .divider-text::before, .divider-text::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: var(--paper3); }
+  .divider-text::before { left: 0; }
+  .divider-text::after { right: 0; }
+
+  .paste-area { width: 100%; min-height: 120px; padding: 12px; border: 1px solid var(--paper3); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink2); background: var(--paper); resize: vertical; outline: none; transition: border-color .2s; line-height: 1.6; }
+  .paste-area:focus { border-color: var(--accent); }
+  .paste-area::placeholder { color: var(--ink3); }
+
+  /* COUNTER */
+  .char-count { font-size: 11px; color: var(--ink3); text-align: right; margin-top: 4px; }
+
+  .analyze-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .analyze-btn:hover:not(:disabled) { background: var(--accent2); transform: translateY(-1px); }
+  .analyze-btn:disabled { background: var(--paper3); color: var(--ink3); cursor: not-allowed; transform: none; }
+
+  /* LOADING */
+  .loading-state { text-align: center; padding: 3rem; display: none; }
+  .loading-state.show { display: block; }
+  .spinner { width: 48px; height: 48px; border: 3px solid var(--paper3); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 1.5rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 16px; color: var(--ink2); font-weight: 500; margin-bottom: 6px; }
+  .loading-sub { font-size: 13px; color: var(--ink3); }
+  .loading-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 1.5rem; max-width: 300px; margin-left: auto; margin-right: auto; text-align: left; }
+  .load-step { font-size: 12px; color: var(--ink3); display: flex; align-items: center; gap: 8px; }
+  .load-step.done { color: var(--green); }
+  .load-step .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--paper3); flex-shrink: 0; }
+  .load-step.done .dot { background: var(--green); }
+  .load-step.active .dot { background: var(--accent); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ERROR */
+  .error-box { background: var(--red-bg); border: 1px solid #f0b0a8; border-radius: var(--radius-sm); padding: 1rem 1.25rem; font-size: 14px; color: var(--red); display: none; margin-top: 1rem; line-height: 1.6; }
+  .error-box.show { display: block; }
+
+  /* RESULTS */
+  .results { display: none; }
+  .results.show { display: block; }
+  .result-header { background: var(--ink); color: var(--paper); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; }
+  .result-header-icon { font-size: 2rem; flex-shrink: 0; }
+  .result-header h2 { font-family: 'Instrument Serif', serif; font-size: 1.4rem; margin-bottom: 6px; }
+  .result-header p { font-size: 13px; color: #b0ad9e; line-height: 1.6; }
+  .result-verdict { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .verdict-safe { background: rgba(42,106,66,.3); color: #6fd49a; }
+  .verdict-caution { background: rgba(138,106,16,.3); color: #f0c84a; }
+  .verdict-risk { background: rgba(200,48,26,.3); color: #ff9080; }
+
+  .section-title { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); margin-bottom: .75rem; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--paper3); }
+
+  .risk-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; }
+  .risk-card { border-radius: var(--radius-sm); padding: 1rem 1.25rem; border-left: 4px solid; }
+  .risk-high { background: var(--red-bg); border-color: var(--red); }
+  .risk-mid { background: var(--yellow-bg); border-color: var(--yellow); }
+  .risk-low { background: var(--green-bg); border-color: var(--green); }
+  .risk-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .risk-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .badge-high { background: var(--red); color: white; }
+  .badge-mid { background: var(--yellow); color: white; }
+  .badge-low { background: var(--green); color: white; }
+  .risk-card-title { font-weight: 600; font-size: 14px; color: var(--ink); }
+  .risk-band { font-size: 12px; font-style: italic; color: var(--ink3); margin-bottom: 6px; padding: 6px 8px; background: rgba(0,0,0,.04); border-radius: 4px; line-height: 1.5; }
+  .risk-explanation { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+  .obligations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 2rem; }
+  @media(max-width:600px){ .obligations-grid { grid-template-columns: 1fr; } }
+  .oblig-box { background: var(--paper2); border: 1px solid var(--paper3); border-radius: var(--radius-sm); padding: 1rem; }
+  .oblig-box h4 { font-size: 13px; font-weight: 600; color: var(--ink2); margin-bottom: 8px; }
+  .oblig-item { display: flex; gap: 8px; font-size: 13px; color: var(--ink2); margin-bottom: 6px; line-height: 1.5; }
+  .oblig-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 7px; }
+
+  .dates-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 2rem; }
+  .date-item { display: flex; align-items: center; gap: 12px; background: var(--paper2); border: 1px solid var(--paper3); border-radius: var(--radius-sm); padding: 10px 14px; }
+  .date-emoji { font-size: 1.2rem; flex-shrink: 0; }
+  .date-label { font-size: 13px; font-weight: 500; color: var(--ink2); }
+  .date-value { font-size: 12px; color: var(--ink3); }
+  .date-value strong { color: var(--ink); font-weight: 600; }
+
+  .recommendation { border-radius: var(--radius); padding: 1.5rem; border: 1px solid; margin-bottom: 2rem; }
+  .rec-safe { background: var(--green-bg); border-color: #a8d8b8; }
+  .rec-caution { background: var(--yellow-bg); border-color: #e8d090; }
+  .rec-risk { background: var(--red-bg); border-color: #f0b0a8; }
+  .recommendation h3 { font-family: 'Instrument Serif', serif; font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .recommendation p { font-size: 14px; color: var(--ink2); line-height: 1.7; }
+
+  .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-secondary { padding: 10px 18px; border: 1px solid var(--paper3); border-radius: var(--radius-sm); background: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink2); cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+  .btn-secondary:hover { background: var(--paper2); }
+  .btn-primary { padding: 10px 18px; border: none; border-radius: var(--radius-sm); background: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: white; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+  .btn-primary:hover { background: var(--accent2); }
+
+  /* CHAT */
+  .chat-section { margin-top: 2rem; border: 1px solid var(--paper3); border-radius: var(--radius); overflow: hidden; display: none; }
+  .chat-section.show { display: block; }
+  .chat-header { background: var(--paper2); padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--ink2); border-bottom: 1px solid var(--paper3); display: flex; align-items: center; gap: 8px; }
+  .chat-messages { padding: 12px; max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+  .chat-msg { max-width: 85%; font-size: 13px; line-height: 1.6; padding: 8px 12px; border-radius: 12px; }
+  .chat-msg.user { background: var(--accent); color: white; align-self: flex-end; border-radius: 12px 12px 2px 12px; }
+  .chat-msg.ai { background: var(--paper2); color: var(--ink2); align-self: flex-start; border-radius: 12px 12px 12px 2px; }
+  .chat-input-row { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--paper3); background: var(--paper); }
+  .chat-input { flex: 1; padding: 8px 12px; border: 1px solid var(--paper3); border-radius: 20px; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; background: var(--paper2); }
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-send { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--accent); color: white; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sample-qs { padding: 8px 12px; border-top: 1px solid var(--paper3); background: var(--paper2); display: flex; gap: 6px; flex-wrap: wrap; }
+  .sample-q { font-size: 11px; padding: 4px 10px; border: 1px solid var(--paper3); border-radius: 20px; background: var(--paper); color: var(--ink3); cursor: pointer; transition: all .15s; }
+  .sample-q:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* PAYWALL MODAL */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(15,14,13,.7); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-bg.show { display: flex; }
+  .modal { background: var(--paper); border-radius: var(--radius); padding: 2rem; max-width: 480px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .modal h2 { font-family: 'Instrument Serif', serif; font-size: 1.6rem; margin-bottom: 8px; }
+  .modal p { font-size: 14px; color: var(--ink3); margin-bottom: 1.5rem; line-height: 1.6; }
+  .modal-plans { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+  .modal-plan { border: 1px solid var(--paper3); border-radius: var(--radius-sm); padding: 14px 16px; cursor: pointer; transition: all .15s; }
+  .modal-plan:hover, .modal-plan.sel { border-color: var(--accent); background: #fdf5f2; }
+  .modal-plan .plan-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+  .plan-name { font-weight: 600; font-size: 14px; }
+  .plan-price { font-family: 'Instrument Serif', serif; font-size: 1.3rem; color: var(--accent); }
+  .plan-desc { font-size: 12px; color: var(--ink3); }
+  .modal-cta { width: 100%; padding: 13px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background .15s; }
+  .modal-cta:hover { background: var(--accent2); }
+  .modal-close { font-size: 12px; color: var(--ink3); text-align: center; margin-top: 10px; cursor: pointer; }
+  .modal-close:hover { color: var(--ink); }
+
+  footer { text-align: center; font-size: 12px; color: var(--ink3); margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--paper3); line-height: 1.7; padding-bottom: 2rem; }
+</style>
+</head>
+<body>
+
+<!-- PAYWALL MODAL -->
+<div class="modal-bg" id="paywallModal">
+  <div class="modal">
+    <h2>Tahlilni boshlash uchun</h2>
+    <p>Bitta bepul demo tahlil sizga berildi. Davom etish uchun to'lovni amalga oshiring.</p>
+    <div class="modal-plans">
+      <div class="modal-plan sel" onclick="selectPlan(this,'starter')">
+        <div class="plan-top"><span class="plan-name">⚡ Starter</span><span class="plan-price">$9.99/oy</span></div>
+        <div class="plan-desc">20 ta tahlil · O'zbek, Rus, Ingliz tili · Chat rejimi</div>
+      </div>
+      <div class="modal-plan" onclick="selectPlan(this,'pro')">
+        <div class="plan-top"><span class="plan-name">🚀 Pro</span><span class="plan-price">$29.99/oy</span></div>
+        <div class="plan-desc">Cheksiz tahlil · Hisobot eksport · Ustunlik qo'llab-quvvatlash</div>
+      </div>
+      <div class="modal-plan" onclick="selectPlan(this,'single')">
+        <div class="plan-top"><span class="plan-name">🎯 Bir marta</span><span class="plan-price">$3.99</span></div>
+        <div class="plan-desc">3 ta tahlil · Muddatsiz · Obuna shart emas</div>
+      </div>
+    </div>
+    <!-- GUMROAD LINKS — o'z linklaringizni qo'ying -->
+    <button class="modal-cta" onclick="goToPay()">💳 To'lov qilish →</button>
+    <div class="modal-close" onclick="closeModal()">Hozircha yo'q, keyinroq</div>
+  </div>
+</div>
+
+<header>
+  <div class="logo"><div class="logo-dot"></div>ShartnomAI</div>
+  <div class="header-right">
+    <span class="header-badge" id="statusBadge">3 ta bepul demo</span>
+    <button class="header-login-btn" onclick="showTokenSection()">Obunachi kirishi</button>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero" id="heroSection">
+    <div class="hero-eyebrow">AI · Yuridik tahlil · O'zbek tili</div>
+    <h1>Shartnomangizni <em>bir daqiqada</em> tahlil qiling</h1>
+    <p>Xavfli bandlarni toping, majburiyatlarni tushuning, muhim sanalarni aniqlag. Yurist yollash o'rniga — AI bilan.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong>~60 son.</strong><span>Tahlil vaqti</span></div>
+      <div class="hero-stat"><strong>3 til</strong><span>O'zbek · Rus · Ingliz</span></div>
+      <div class="hero-stat"><strong>100%</strong><span>Maxfiy</span></div>
+    </div>
+    <div class="pricing-row">
+      <div class="price-pill">⚡ Starter — $9.99/oy</div>
+      <div class="price-pill featured">🚀 Pro — $29.99/oy</div>
+      <div class="price-pill">🎯 1 marta — $3.99</div>
+    </div>
+  </div>
+
+  <!-- TOKEN LOGIN (obunachillar uchun) -->
+  <div class="token-section" id="tokenSection" style="display:none">
+    <h3>🔑 Obuna tokenini kiriting</h3>
+    <div class="token-input-row">
+      <input type="text" class="token-input" id="tokenInput" placeholder="SH-XXXX-XXXX-XXXX">
+      <button class="token-btn" onclick="verifyToken()">Kirish</button>
+    </div>
+    <div class="token-hint">Tokenni to'lovdan keyin email orqali oldingiz. Muammo bo'lsa: <a href="mailto:support@shartnoma.ai">support@shartnoma.ai</a></div>
+    <div class="token-status" id="tokenStatus"></div>
+  </div>
+
+  <!-- DEMO BANNER -->
+  <div class="demo-banner" id="demoBanner">
+    ⚡ Siz <strong id="demoCount">3</strong> ta bepul demo tahlildan foydalanishingiz mumkin. To'lagan foydalanuvchilar uchun cheksiz.
+  </div>
+
+  <!-- LANG -->
+  <div class="lang-row">
+    <span class="lang-label">Tahlil tili:</span>
+    <button class="lang-btn active" onclick="setLang('uz', this)">🇺🇿 O'zbek</button>
+    <button class="lang-btn" onclick="setLang('ru', this)">🇷🇺 Русский</button>
+    <button class="lang-btn" onclick="setLang('en', this)">🇬🇧 English</button>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" class="upload-input" id="fileInput" accept=".pdf,.txt" onchange="handleFile(event)">
+    <span class="upload-icon">📄</span>
+    <div class="upload-title">PDF yoki TXT faylni shu yerga tashlang</div>
+    <div class="upload-sub">yoki bosib faylni tanlang · Maksimal 5MB</div>
+  </div>
+
+  <div class="divider-text">yoki shartnoma matnini to'g'ridan to'g'ri kiriting</div>
+
+  <textarea class="paste-area" id="pasteArea" placeholder="Bu yerga shartnoma matnini nusxalab joylashtiring...&#10;&#10;Masalan: 'Ushbu shartnoma 2024 yil 1 yanvar kuni...'" oninput="updateCharCount()"></textarea>
+  <div class="char-count" id="charCount">0 / 12,000 belgi</div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">
+    <span>🔍</span> Shartnomani Tahlil Qilish
+  </button>
+
+  <!-- LOADING -->
+  <div class="loading-state" id="loadingState">
+    <div class="spinner"></div>
+    <div class="loading-text">AI shartnomani o'qiyapti...</div>
+    <div class="loading-sub">Bu 30–60 soniya davom etadi</div>
+    <div class="loading-steps">
+      <div class="load-step active" id="step1"><div class="dot"></div> Matn ajratilmoqda</div>
+      <div class="load-step" id="step2"><div class="dot"></div> Xavfli bandlar aniqlanmoqda</div>
+      <div class="load-step" id="step3"><div class="dot"></div> Majburiyatlar tahlil qilinmoqda</div>
+      <div class="load-step" id="step4"><div class="dot"></div> Hisobot tayyorlanmoqda</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="resultsSection">
+    <div class="result-header" id="resultHeader"></div>
+    <div class="section-title">Xavfli bandlar</div>
+    <div class="risk-list" id="riskList"></div>
+    <div class="section-title">Majburiyatlar</div>
+    <div class="obligations-grid" id="obligationsGrid"></div>
+    <div class="section-title">Muhim sanalar va muddatlar</div>
+    <div class="dates-list" id="datesList"></div>
+    <div class="section-title">Umumiy tavsiya</div>
+    <div class="recommendation" id="recommendation"></div>
+    <div class="action-row">
+      <button class="btn-secondary" onclick="resetAll()">↩ Yangi shartnoma</button>
+      <button class="btn-secondary" onclick="copyReport()">📋 Nusxa olish</button>
+      <button class="btn-primary" onclick="toggleChat()">💬 Savol so'rash</button>
+    </div>
+    <div class="chat-section" id="chatSection">
+      <div class="chat-header">💬 Shartnoma haqida savol bering</div>
+      <div class="sample-qs" id="sampleQs"></div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="Savolingizni yozing..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    ShartnomAI — bu yuridik maslahat emas. Muhim qarorlar uchun malakali yuristga murojaat qiling.<br>
+    Sizning hujjatlaringiz serverda saqlanmaydi. © 2026 ShartnomAI
+  </footer>
+</main>
+
+<script>
+if(typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// ════════════════════════════════════════
+// SOZLAMALAR — BU YERLARNI O'ZGARTIRING
+// ════════════════════════════════════════
+
+// To'lov linklari (Gumroad yoki Click.uz)
+const PAY_LINKS = {
+  starter: 'https://YOUR_GUMROAD.gumroad.com/l/starter',  // <- o'z linklaringizni qo'ying
+  pro: 'https://YOUR_GUMROAD.gumroad.com/l/pro',
+  single: 'https://YOUR_GUMROAD.gumroad.com/l/single'
+};
+
+// Backend endpoint (Vercel'ga deploy qilgandan keyin o'zgaradi)
+// Lokal test uchun: '/api/analyze'
+// Vercel'da: '/api/analyze' (avtomatik)
+const API_ENDPOINT = '/api/analyze';
+
+// Demo uchun ruxsat etilgan tahlillar soni (cookie'da saqlanadi)
+const MAX_FREE_ANALYSES = 3;
+
+// ════════════════════════════════════════
+
+let currentLang = 'uz';
+let contractText = '';
+let chatHistory = [];
+let selectedPlan = 'starter';
+let userToken = localStorage.getItem('shartnoma_token') || '';
+let isSubscriber = false;
+
+// Demo counter
+function getDemoCount() {
+  return parseInt(localStorage.getItem('demo_count') || '0');
+}
+function incDemoCount() {
+  localStorage.setItem('demo_count', getDemoCount() + 1);
+  updateDemoUI();
+}
+function updateDemoUI() {
+  const remaining = MAX_FREE_ANALYSES - getDemoCount();
+  const badge = document.getElementById('statusBadge');
+  const banner = document.getElementById('demoBanner');
+  const count = document.getElementById('demoCount');
+  if(isSubscriber) {
+    badge.textContent = '✅ Obunachi';
+    badge.style.background = '#eaf4ee';
+    badge.style.color = '#2a6a42';
+    if(banner) banner.style.display = 'none';
+  } else {
+    badge.textContent = remaining > 0 ? `${remaining} ta bepul demo` : '⚠️ Demo tugadi';
+    if(count) count.textContent = remaining;
+  }
+}
+
+// Token
+if(userToken) {
+  isSubscriber = true;
+  updateDemoUI();
+}
+
+function showTokenSection() {
+  const s = document.getElementById('tokenSection');
+  s.style.display = s.style.display === 'none' ? 'block' : 'none';
+}
+
+function verifyToken() {
+  const val = document.getElementById('tokenInput').value.trim().toUpperCase();
+  const status = document.getElementById('tokenStatus');
+  // Oddiy tekshiruv: "SH-" bilan boshlanishi kerak
+  // Haqiqiy tekshiruv uchun serverga so'rov yuboring
+  if(val.startsWith('SH-') && val.length >= 10) {
+    localStorage.setItem('shartnoma_token', val);
+    userToken = val;
+    isSubscriber = true;
+    updateDemoUI();
+    status.className = 'token-status token-ok';
+    status.style.display = 'flex';
+    status.innerHTML = '✅ Kirish muvaffaqiyatli! Endi cheksiz tahlil qila olasiz.';
+    document.getElementById('tokenSection').style.display = 'none';
+  } else {
+    status.className = 'token-status token-err';
+    status.style.display = 'block';
+    status.textContent = '❌ Token noto\'g\'ri. SH-XXXX-XXXX-XXXX formatida kiriting.';
+  }
+}
+
+function setLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function updateCharCount() {
+  const t = document.getElementById('pasteArea').value;
+  document.getElementById('charCount').textContent = `${t.length.toLocaleString()} / 12,000 belgi`;
+}
+
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  box.innerHTML = '⚠️ ' + msg;
+  box.classList.add('show');
+}
+function hideError() { document.getElementById('errorBox').classList.remove('show'); }
+
+async function extractPdfText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const typedArr = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument(typedArr).promise;
+        let text = '';
+        for(let i = 1; i <= Math.min(pdf.numPages, 15); i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(s => s.str).join(' ') + '\n';
+        }
+        resolve(text.trim());
+      } catch(err) { reject(err); }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  if(file.size > 5 * 1024 * 1024) { showError('Fayl hajmi 5MB dan oshmasligi kerak.'); return; }
+  const zone = document.getElementById('uploadZone');
+  zone.classList.add('has-file');
+  zone.innerHTML = `<div class="file-info">
+    <span class="file-icon">📄</span>
+    <div><div class="file-name">${file.name}</div><div class="file-size">${(file.size/1024).toFixed(0)} KB</div></div>
+    <span class="file-change" onclick="resetFile()">O'zgartirish</span>
+  </div>`;
+  if(file.name.endsWith('.pdf')) {
+    extractPdfText(file).then(text => {
+      contractText = text;
+      document.getElementById('pasteArea').value = '';
+    }).catch(() => showError('PDF o\'qishda xatolik. Matnni to\'g\'ridan to\'g\'ri kiriting.'));
+  } else {
+    const reader = new FileReader();
+    reader.onload = e => { contractText = e.target.result; document.getElementById('pasteArea').value = ''; };
+    reader.readAsText(file);
+  }
+}
+
+function resetFile() {
+  contractText = '';
+  const zone = document.getElementById('uploadZone');
+  zone.classList.remove('has-file');
+  zone.innerHTML = `<input type="file" class="upload-input" id="fileInput" accept=".pdf,.txt" onchange="handleFile(event)">
+    <span class="upload-icon">📄</span>
+    <div class="upload-title">PDF yoki TXT faylni shu yerga tashlang</div>
+    <div class="upload-sub">yoki bosib faylni tanlang · Maksimal 5MB</div>`;
+}
+
+// Drag and drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if(file) handleFile({target:{files:[file]}});
+});
+
+function setLoadStep(num) {
+  for(let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step'+i);
+    if(i < num) { el.classList.add('done'); el.classList.remove('active'); }
+    else if(i === num) { el.classList.add('active'); el.classList.remove('done'); }
+    else { el.classList.remove('done','active'); }
+  }
+}
+
+const LANG_PROMPTS = {
+  uz: {
+    system: `Sen tajribali O'zbek yuridik tahlilchisan. Shartnoma matnini o'zbek tilida aniq va oddiy tilda tahlil qilasan. Faqat JSON formatda javob ber, hech qanday qo'shimcha matn yo'q:
+{"summary":"2-3 gapda xulosa","verdict":"safe|caution|risk","verdictText":"qisqa xulosa","risks":[{"level":"high|medium|low","title":"nomi","band":"iqtibos","explanation":"tushuntirish"}],"obligations":{"party1":{"name":"tomon 1","items":["...","..."]},"party2":{"name":"tomon 2","items":["...","..."]}},"dates":[{"emoji":"📅","label":"nomi","value":"qiymat"}],"recommendation":"tavsiya","chatQuestions":["savol 1?","savol 2?","savol 3?"]}`,
+    prefix: 'Shartnomani tahlil qil:\n\n',
+    chatSystem: 'Sen shartnoma tahlilchisan. Savollarga qisqa, aniq, o\'zbek tilida javob ber.'
+  },
+  ru: {
+    system: `Ты юридический аналитик. Отвечай только в JSON формате, без лишнего текста:
+{"summary":"резюме","verdict":"safe|caution|risk","verdictText":"вердикт","risks":[{"level":"high|medium|low","title":"название","band":"цитата","explanation":"объяснение"}],"obligations":{"party1":{"name":"сторона 1","items":["..."]},"party2":{"name":"сторона 2","items":["..."]}},"dates":[{"emoji":"📅","label":"название","value":"значение"}],"recommendation":"рекомендация","chatQuestions":["вопрос 1?","вопрос 2?","вопрос 3?"]}`,
+    prefix: 'Проанализируй договор:\n\n',
+    chatSystem: 'Ты аналитик договоров. Отвечай кратко и понятно на вопросы о договоре.'
+  },
+  en: {
+    system: `You are a contract analyst. Reply ONLY in JSON, no extra text:
+{"summary":"summary","verdict":"safe|caution|risk","verdictText":"verdict","risks":[{"level":"high|medium|low","title":"name","band":"quote","explanation":"explanation"}],"obligations":{"party1":{"name":"party 1","items":["..."]},"party2":{"name":"party 2","items":["..."]}},"dates":[{"emoji":"📅","label":"name","value":"value"}],"recommendation":"recommendation","chatQuestions":["question 1?","question 2?","question 3?"]}`,
+    prefix: 'Analyze this contract:\n\n',
+    chatSystem: 'You are a contract analyst. Answer questions about the contract briefly and clearly.'
+  }
+};
+
+async function callAPI(payload) {
+  const headers = { 'Content-Type': 'application/json' };
+  if(userToken) headers['x-user-token'] = userToken;
+
+  const response = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+
+  if(data.error === 'token_invalid') {
+    throw new Error('Token noto\'g\'ri. Iltimos, to\'lov qilib yangi token oling.');
+  }
+  if(!response.ok) {
+    throw new Error(data.message || 'Server xatoligi: ' + response.status);
+  }
+  return data;
+}
+
+async function analyze() {
+  hideError();
+  const pasteText = document.getElementById('pasteArea').value.trim();
+  const text = contractText || pasteText;
+
+  if(!text || text.length < 50) {
+    showError('Iltimos, shartnoma faylini yuklang yoki matnni kiriting.');
+    return;
+  }
+
+  // Paywall tekshiruvi
+  if(!isSubscriber) {
+    const used = getDemoCount();
+    if(used >= MAX_FREE_ANALYSES) {
+      document.getElementById('paywallModal').classList.add('show');
+      return;
+    }
+  }
+
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('heroSection').style.display = 'none';
+  document.getElementById('loadingState').classList.add('show');
+  document.getElementById('resultsSection').classList.remove('show');
+
+  setLoadStep(1);
+  await delay(800);
+  setLoadStep(2);
+
+  const p = LANG_PROMPTS[currentLang];
+  const truncated = text.slice(0, 12000);
+
+  try {
+    const data = await callAPI({
+      system: p.system,
+      messages: [{ role: 'user', content: p.prefix + truncated }],
+      maxTokens: 2500
+    });
+
+    setLoadStep(3);
+    await delay(600);
+
+    const rawText = data.content[0].text;
+    let result;
+    try {
+      result = JSON.parse(rawText.replace(/```json|```/g, '').trim());
+    } catch(e) {
+      throw new Error('AI javobi formatsiz. Qayta urinib ko\'ring.');
+    }
+
+    setLoadStep(4);
+    await delay(400);
+
+    if(!isSubscriber) incDemoCount();
+
+    chatHistory = [
+      { role: 'user', content: p.prefix + truncated },
+      { role: 'assistant', content: rawText }
+    ];
+
+    renderResults(result);
+  } catch(err) {
+    document.getElementById('loadingState').classList.remove('show');
+    document.getElementById('heroSection').style.display = 'block';
+    document.getElementById('analyzeBtn').disabled = false;
+    showError(err.message);
+  }
+}
+
+function renderResults(r) {
+  document.getElementById('loadingState').classList.remove('show');
+  const verdictClass = r.verdict === 'safe' ? 'verdict-safe' : r.verdict === 'caution' ? 'verdict-caution' : 'verdict-risk';
+  const verdictEmoji = r.verdict === 'safe' ? '✅' : r.verdict === 'caution' ? '⚠️' : '🔴';
+  document.getElementById('resultHeader').innerHTML = `
+    <div class="result-header-icon">📋</div>
+    <div><h2>Tahlil natijasi</h2><p>${r.summary}</p>
+    <span class="result-verdict ${verdictClass}">${verdictEmoji} ${r.verdictText}</span></div>`;
+  document.getElementById('riskList').innerHTML = (r.risks||[]).map(risk => `
+    <div class="risk-card risk-${risk.level==='high'?'high':risk.level==='medium'?'mid':'low'}">
+      <div class="risk-card-header">
+        <span class="risk-badge badge-${risk.level==='high'?'high':risk.level==='medium'?'mid':'low'}">
+          ${risk.level==='high'?'🔴 Yuqori':risk.level==='medium'?'🟡 O\'rta':'🟢 Past'}</span>
+        <span class="risk-card-title">${risk.title}</span></div>
+      ${risk.band?`<div class="risk-band">"${risk.band}"</div>`:''}
+      <div class="risk-explanation">${risk.explanation}</div>
+    </div>`).join('') || '<p style="color:var(--ink3);font-size:13px">Sezilarli xavfli band topilmadi.</p>';
+  const ob = r.obligations||{};
+  const p1 = ob.party1||{}, p2 = ob.party2||{};
+  document.getElementById('obligationsGrid').innerHTML = `
+    <div class="oblig-box"><h4>${p1.name||'Tomon 1'}</h4>
+    ${(p1.items||[]).map(i=>`<div class="oblig-item"><div class="oblig-dot"></div>${i}</div>`).join('')}</div>
+    <div class="oblig-box"><h4>${p2.name||'Tomon 2'}</h4>
+    ${(p2.items||[]).map(i=>`<div class="oblig-item"><div class="oblig-dot"></div>${i}</div>`).join('')}</div>`;
+  document.getElementById('datesList').innerHTML = (r.dates||[]).map(d=>`
+    <div class="date-item"><span class="date-emoji">${d.emoji||'📅'}</span>
+    <div><div class="date-label">${d.label}</div><div class="date-value"><strong>${d.value}</strong></div></div></div>`).join('')
+    || '<p style="color:var(--ink3);font-size:13px">Aniq sana topilmadi.</p>';
+  const recClass = r.verdict==='safe'?'rec-safe':r.verdict==='caution'?'rec-caution':'rec-risk';
+  const recEmoji = r.verdict==='safe'?'✅':r.verdict==='caution'?'⚠️':'🔴';
+  document.getElementById('recommendation').className = `recommendation ${recClass}`;
+  document.getElementById('recommendation').innerHTML = `<h3>${recEmoji} Tavsiya</h3><p>${r.recommendation}</p>`;
+  document.getElementById('sampleQs').innerHTML = (r.chatQuestions||[]).map(q=>
+    `<button class="sample-q" onclick="askSampleQ(this)">${q}</button>`).join('');
+  document.getElementById('resultsSection').classList.add('show');
+  document.getElementById('analyzeBtn').disabled = false;
+  document.getElementById('resultsSection').scrollIntoView({behavior:'smooth'});
+}
+
+function resetAll() {
+  document.getElementById('resultsSection').classList.remove('show');
+  document.getElementById('chatSection').classList.remove('show');
+  document.getElementById('heroSection').style.display = 'block';
+  document.getElementById('pasteArea').value = '';
+  contractText = ''; chatHistory = [];
+  resetFile(); hideError();
+  document.getElementById('analyzeBtn').disabled = false;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyReport() {
+  if(!window._lastResult) return;
+  const r = window._lastResult;
+  let text = `SHARTNOMA TAHLILI\n${'='.repeat(40)}\n\n${r.summary}\n\nVERDIKT: ${r.verdictText}\n\nTAVSIYA:\n${r.recommendation}`;
+  navigator.clipboard.writeText(text).then(()=>alert('Nusxa olindi!'));
+}
+
+function toggleChat() {
+  document.getElementById('chatSection').classList.toggle('show');
+}
+
+function askSampleQ(btn) {
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  const messages = document.getElementById('chatMessages');
+  messages.innerHTML += `<div class="chat-msg user">${msg}</div>`;
+  chatHistory.push({ role: 'user', content: msg });
+  const thinking = document.createElement('div');
+  thinking.className = 'chat-msg ai';
+  thinking.textContent = '...';
+  messages.appendChild(thinking);
+  messages.scrollTop = messages.scrollHeight;
+  try {
+    const p = LANG_PROMPTS[currentLang];
+    const data = await callAPI({ system: p.chatSystem, messages: chatHistory, maxTokens: 600 });
+    const reply = data.content[0].text;
+    chatHistory.push({ role: 'assistant', content: reply });
+    thinking.textContent = reply;
+    messages.scrollTop = messages.scrollHeight;
+  } catch(err) {
+    thinking.textContent = 'Xatolik: ' + err.message;
+  }
+}
+
+// Paywall
+function selectPlan(el, plan) {
+  document.querySelectorAll('.modal-plan').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedPlan = plan;
+}
+function goToPay() {
+  const link = PAY_LINKS[selectedPlan];
+  if(link && !link.includes('YOUR_GUMROAD')) {
+    window.open(link, '_blank');
+  } else {
+    alert('To\'lov tizimi sozlanmagan. Egaga murojaat qiling.');
+  }
+  closeModal();
+}
+function closeModal() {
+  document.getElementById('paywallModal').classList.remove('show');
+}
+
+function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
+updateDemoUI();
+</script>
+</body>
+</html>
